@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$title - SimpleDraw</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="detail-page">
+  <main class="standalone-detail">
+    <a class="back-link page-back" href="/">← 返回收录页</a>
+    <div class="modal standalone-modal">
+      <div class="preview">$preview</div>
+      <div class="detail">
+        <div class="detail-head">
+          <div>
+            <p class="eyebrow">Generation Detail</p>
+            <h2>$title</h2>
+            <div class="meta">$created_at_text</div>
+          </div>
+        </div>
+
+        <div class="section prompt-section">
+          <div class="label">提示词</div>
+          <div class="text">$prompt</div>
+        </div>
+        <div class="section">
+          <div class="label">参考图</div>
+          <div class="refs">$references</div>
+        </div>
+        <div class="section">
+          <div class="label">原消息</div>
+          <div class="text">$input_outline</div>
+        </div>
+        <div class="section">
+          <div class="label">信息</div>
+          <div class="kv">
+            <div>用户</div><div>$sender</div>
+            <div>平台</div><div>$platform</div>
+            <div>会话</div><div>$session_id</div>
+            <div>状态</div><div><span class="badge $status_class">$status_text</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

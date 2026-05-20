@@ -1,0 +1,93 @@
+{
+  "base_url": {
+    "description": "API Base URL",
+    "type": "string",
+    "default": "https://api.openai.com/v1",
+    "hint": "只填写到 /v1，例如 https://api.openai.com/v1。"
+  },
+  "api_key": {
+    "description": "API Key",
+    "type": "string",
+    "default": "",
+    "hint": "绘图服务的密钥",
+    "obvious_hint": true
+  },
+  "proxy": {
+    "description": "代理地址",
+    "type": "string",
+    "default": "",
+    "hint": "可选。填写后 API 请求和图片下载会走代理，例如 http://127.0.0.1:7890；留空则直连。"
+  },
+  "model": {
+    "description": "绘图模型",
+    "type": "string",
+    "default": "gpt-image-2",
+    "hint": "例如 gpt-image-2"
+  },
+  "size": {
+    "description": "图片尺寸",
+    "type": "string",
+    "default": "auto",
+    "hint": "支持 auto 和符合限制的尺寸，如 1024x1024、1536x1024、1024x1536、1536x864、3840x2160。具体取值取决于你的 API。"
+  },
+  "response_format": {
+    "description": "返回格式",
+    "type": "string",
+    "default": "b64_json",
+    "hint": "OpenAI 兼容接口通常支持 b64_json 或 url；如果你的 API 不需要，可留空。"
+  },
+  "quality": {
+    "description": "图片质量",
+    "type": "string",
+    "default": "auto",
+    "hint": "可选参数，例如 auto、low、medium、high；不需要时留空。"
+  },
+  "max_reference_images": {
+    "description": "最多参考图数量",
+    "type": "int",
+    "default": 4,
+    "hint": "消息里包含多张图片时，最多附带多少张传给图片编辑接口；设为 0 可禁用图生图。"
+  },
+  "max_reference_image_side": {
+    "description": "参考图最大边长",
+    "type": "int",
+    "default": 2048,
+    "hint": "上传到图片编辑接口前会等比缩放参考图，避免引用原图过大导致接口超时。"
+  },
+  "reference_image_quality": {
+    "description": "参考图压缩质量",
+    "type": "int",
+    "default": 88,
+    "hint": "上传前转为 JPEG 的质量，范围建议 50-95。"
+  },
+  "web_enabled": {
+    "description": "启用提示词 Web 服务",
+    "type": "bool",
+    "default": true,
+    "hint": "启用后插件启动时会拉起一个本地 Web 服务展示提示词收录。"
+  },
+  "web_host": {
+    "description": "Web 服务监听地址",
+    "type": "string",
+    "default": "127.0.0.1",
+    "hint": "默认只允许本机访问；如果需要局域网访问可改为 0.0.0.0。"
+  },
+  "web_port": {
+    "description": "Web 服务端口",
+    "type": "int",
+    "default": 7788,
+    "hint": "提示词收录页面访问端口。"
+  },
+  "web_page_size": {
+    "description": "Web 页面记录数量",
+    "type": "int",
+    "default": 200,
+    "hint": "首页最多展示多少条最近绘图记录。"
+  },
+  "timeout": {
+    "description": "请求超时时间",
+    "type": "int",
+    "default": 360,
+    "hint": "单位：秒。绘图通常较慢，建议 60 秒以上。"
+  }
+}

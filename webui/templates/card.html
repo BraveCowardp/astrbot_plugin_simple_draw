@@ -1,0 +1,21 @@
+<a
+  class="card"
+  href="/records/$id"
+  hx-get="/records/$id"
+  hx-target="#modal-root"
+  hx-swap="innerHTML"
+  aria-label="查看提示词详情"
+>
+  <div class="thumb">$thumb</div>
+  <div class="card-body">
+    <div class="card-kicker">
+      <span># $id</span>
+      <span class="badge $status_class">$status_text</span>
+    </div>
+    <div class="prompt">$prompt</div>
+    <div class="meta">
+      <span>$created_at_text</span>
+      <span aria-hidden="true">打开</span>
+    </div>
+  </div>
+</a>
