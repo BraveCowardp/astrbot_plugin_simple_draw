@@ -46,8 +46,12 @@ class DrawConfig:
         return self.get_int("web_port", 7788)
 
     @property
-    def web_page_size(self) -> int:
-        return min(1000, max(1, self.get_int("web_page_size", 200)))
+    def prompt_archive_url(self) -> str:
+        return self.get_str("prompt_archive_url")
+
+    @property
+    def prompt_similarity_threshold(self) -> float:
+        return min(1.0, max(0.0, self.get_float("prompt_similarity_threshold", 0.82)))
 
     def build_api_url(self, endpoint: str) -> str:
         return f"{self.base_url}/{endpoint.lstrip('/')}"
@@ -85,6 +89,13 @@ class DrawConfig:
         value = self._config.get(key, default)
         try:
             return int(value)
+        except (TypeError, ValueError):
+            return default
+
+    def get_float(self, key: str, default: float) -> float:
+        value = self._config.get(key, default)
+        try:
+            return float(value)
         except (TypeError, ValueError):
             return default
 

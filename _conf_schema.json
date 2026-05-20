@@ -9,7 +9,7 @@
     "description": "API Key",
     "type": "string",
     "default": "",
-    "hint": "绘图服务的密钥",
+    "hint": "绘图服务的密钥。",
     "obvious_hint": true
   },
   "proxy": {
@@ -22,13 +22,13 @@
     "description": "绘图模型",
     "type": "string",
     "default": "gpt-image-2",
-    "hint": "例如 gpt-image-2"
+    "hint": "例如 gpt-image-2。"
   },
   "size": {
     "description": "图片尺寸",
     "type": "string",
     "default": "auto",
-    "hint": "支持 auto 和符合限制的尺寸，如 1024x1024、1536x1024、1024x1536、1536x864、3840x2160。具体取值取决于你的 API。"
+    "hint": "支持 auto 和符合接口限制的尺寸，例如 1024x1024、1536x1024、1024x1536、1536x864、3840x2160。"
   },
   "response_format": {
     "description": "返回格式",
@@ -52,13 +52,13 @@
     "description": "参考图最大边长",
     "type": "int",
     "default": 2048,
-    "hint": "上传到图片编辑接口前会等比缩放参考图，避免引用原图过大导致接口超时。"
+    "hint": "上传到图片编辑接口前会等比缩放参考图，避免原图过大导致接口超时。"
   },
   "reference_image_quality": {
     "description": "参考图压缩质量",
     "type": "int",
     "default": 88,
-    "hint": "上传前转为 JPEG 的质量，范围建议 50-95。"
+    "hint": "上传前转为 JPEG 的质量，建议范围 50-95。"
   },
   "web_enabled": {
     "description": "启用提示词 Web 服务",
@@ -78,11 +78,17 @@
     "default": 7788,
     "hint": "提示词收录页面访问端口。"
   },
-  "web_page_size": {
-    "description": "Web 页面记录数量",
-    "type": "int",
-    "default": 200,
-    "hint": "首页最多展示多少条最近绘图记录。"
+  "prompt_archive_url": {
+    "description": "提示词收录网址",
+    "type": "string",
+    "default": "",
+    "hint": "留空则使用本地 Web 服务地址。"
+  },
+  "prompt_similarity_threshold": {
+    "description": "提示词合并相似度阈值",
+    "type": "float",
+    "default": 0.82,
+    "hint": "用于合并相似提示词卡片，范围 0-1。越高越保守，建议 0.82-0.92。"
   },
   "timeout": {
     "description": "请求超时时间",

@@ -4,75 +4,52 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SimpleDraw 提示词收录</title>
-  <link rel="stylesheet" href="/static/app.css">
-  <script src="/static/htmx.min.js" defer></script>
+  <link rel="stylesheet" href="/static/app.css?v=20260520-no-x-scroll">
+  <script src="/static/htmx.min.js?v=20260520-no-x-scroll" defer></script>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="side-panel">
-      <div class="brand-lockup">
-        <div class="mark">SD</div>
-        <div>
-          <p class="eyebrow">Prompt Archive</p>
-          <h1>SimpleDraw</h1>
-        </div>
+  <header class="compact-header">
+    <div class="brand-lockup">
+      <div class="mark">SD</div>
+      <div>
+        <p class="eyebrow">Prompt Archive</p>
+        <h1>SimpleDraw 提示词收录</h1>
       </div>
-
-      <div class="archive-copy">
-        <h2>提示词收录</h2>
-        <p>把每次生成沉淀成可回看的视觉线索，快速复盘提示词、原消息和参考图。</p>
+    </div>
+    <div class="header-actions">
+      <div class="total-chip" aria-label="全部词条数">
+        <span>全部词条</span>
+        <b id="total-count">$total</b>
       </div>
-
-      <div class="stats" aria-label="收录统计">
-        <div class="stat stat-total">
-          <span>全部</span>
-          <b>$total</b>
-        </div>
-        <div class="stat">
-          <span>成功</span>
-          <b>$success</b>
-        </div>
-        <div class="stat">
-          <span>失败</span>
-          <b>$failed</b>
-        </div>
-      </div>
-    </aside>
-
-    <main class="content-panel">
-      <section class="command-bar" aria-label="记录操作">
-        <div>
-          <p class="eyebrow">Recent Works</p>
-          <h2>最近生成</h2>
-        </div>
-        <button
-          class="refresh-button"
-          type="button"
-          hx-get="/records"
-          hx-target="#records"
-          hx-swap="innerHTML transition:true"
-          hx-indicator="#records-loading"
-          aria-label="刷新记录"
-        >
-          <span aria-hidden="true">↻</span>
-          刷新
-        </button>
-      </section>
-
-      <div
-        id="records"
+      <button
+        class="refresh-button"
+        type="button"
         hx-get="/records"
-        hx-trigger="load"
+        hx-target="#records"
         hx-swap="innerHTML transition:true"
         hx-indicator="#records-loading"
+        aria-label="刷新记录"
       >
-        <div class="empty">正在加载记录...</div>
-      </div>
-      <div id="records-loading" class="loading htmx-indicator">正在同步</div>
-    </main>
-  </div>
+        <span aria-hidden="true">↻</span>
+        刷新
+      </button>
+    </div>
+  </header>
+
+  <main class="content-panel">
+    <div
+      id="records"
+      hx-get="/records"
+      hx-trigger="load"
+      hx-swap="innerHTML transition:true"
+      hx-indicator="#records-loading"
+    >
+      <div class="empty">正在加载记录...</div>
+    </div>
+    <div id="records-loading" class="loading htmx-indicator">正在同步</div>
+  </main>
 
   <div id="modal-root"></div>
-  <script src="/static/app.js" defer></script>
+  <script src="/static/app.js?v=20260520-no-x-scroll" defer></script>
 </body>
 </html>

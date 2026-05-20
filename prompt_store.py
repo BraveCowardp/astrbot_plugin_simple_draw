@@ -13,6 +13,7 @@ class PromptRecord:
     session_id: str
     sender_id: str
     sender_name: str
+    sender_avatar: str
     prompt: str
     input_outline: str
     output_path: str
@@ -32,8 +33,8 @@ class PromptStore:
     async def add_record(self, record: PromptRecord) -> None:
         await asyncio.to_thread(self._add_record_sync, record)
 
-    async def list_records(self, limit: int = 200) -> list[dict[str, Any]]:
-        return await asyncio.to_thread(self._list_records_sync, limit)
+    async def list_records(self) -> list[dict[str, Any]]:
+        return await asyncio.to_thread(self._list_records_sync)
 
     async def get_record(self, record_id: int) -> dict[str, Any] | None:
         return await asyncio.to_thread(self._get_record_sync, record_id)
@@ -57,6 +58,7 @@ class PromptStore:
                     session_id TEXT NOT NULL,
                     sender_id TEXT NOT NULL,
                     sender_name TEXT NOT NULL,
+                    sender_avatar TEXT NOT NULL DEFAULT '',
                     prompt TEXT NOT NULL,
                     input_outline TEXT NOT NULL,
                     output_path TEXT NOT NULL,
@@ -69,6 +71,8 @@ class PromptStore:
             columns = {row["name"] for row in conn.execute("PRAGMA table_info(prompt_records)").fetchall()}
             if "reference_paths" not in columns:
                 conn.execute("ALTER TABLE prompt_records ADD COLUMN reference_paths TEXT NOT NULL DEFAULT ''")
+            if "sender_avatar" not in columns:
+                conn.execute("ALTER TABLE prompt_records ADD COLUMN sender_avatar TEXT NOT NULL DEFAULT ''")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_prompt_records_created_at ON prompt_records(created_at DESC)")
 
     def _add_record_sync(self, record: PromptRecord) -> None:
@@ -77,8 +81,8 @@ class PromptStore:
                 """
                 INSERT INTO prompt_records (
                     created_at, platform, session_id, sender_id, sender_name,
-                    prompt, input_outline, output_path, reference_paths, status, error
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    sender_avatar, prompt, input_outline, output_path, reference_paths, status, error
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     record.created_at or int(time.time()),
@@ -86,6 +90,7 @@ class PromptStore:
                     record.session_id,
                     record.sender_id,
                     record.sender_name,
+                    record.sender_avatar,
                     record.prompt,
                     record.input_outline,
                     record.output_path,
@@ -95,23 +100,22 @@ class PromptStore:
                 ),
             )
 
-    def _list_records_sync(self, limit: int) -> list[dict[str, Any]]:
-        limit = min(1000, max(1, int(limit)))
+    def _list_records_sync(self) -> list[dict[str, Any]]:
         with self._connect() as conn:
             rows = conn.execute(
-                "SELECT * FROM prompt_records ORDER BY created_at DESC, id DESC LIMIT ?",
-                (limit,),
+                "SELECT * FROM prompt_records WHERE status = 'success' ORDER BY created_at DESC, id DESC",
             ).fetchall()
         return [dict(row) for row in rows]
 
     def _get_record_sync(self, record_id: int) -> dict[str, Any] | None:
         with self._connect() as conn:
-            row = conn.execute("SELECT * FROM prompt_records WHERE id = ?", (record_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM prompt_records WHERE id = ? AND status = 'success'",
+                (record_id,),
+            ).fetchone()
         return dict(row) if row else None
 
     def _get_stats_sync(self) -> dict[str, int]:
         with self._connect() as conn:
-            total = conn.execute("SELECT COUNT(*) FROM prompt_records").fetchone()[0]
-            success = conn.execute("SELECT COUNT(*) FROM prompt_records WHERE status = 'success'").fetchone()[0]
-            failed = conn.execute("SELECT COUNT(*) FROM prompt_records WHERE status = 'failed'").fetchone()[0]
-        return {"total": total, "success": success, "failed": failed}
+            total = conn.execute("SELECT COUNT(*) FROM prompt_records WHERE status = 'success'").fetchone()[0]
+        return {"total": total}

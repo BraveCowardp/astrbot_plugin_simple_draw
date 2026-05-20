@@ -1,5 +1,6 @@
 <a
   class="card"
+  style="--card-ratio: $aspect_ratio;"
   href="/records/$id"
   hx-get="/records/$id"
   hx-target="#modal-root"
@@ -7,10 +8,10 @@
   aria-label="查看提示词详情"
 >
   <div class="thumb">$thumb</div>
+  $group_badge
   <div class="card-body">
     <div class="card-kicker">
       <span># $id</span>
-      <span class="badge $status_class">$status_text</span>
     </div>
     <div class="prompt">$prompt</div>
     <div class="meta">

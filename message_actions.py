@@ -35,19 +35,21 @@ class MessageActions:
         event: AstrMessageEvent,
         image_path: str | None = None,
         error: str | None = None,
+        archive_url: str = "",
     ) -> None:
-        chain = MessageChain([self._build_forward_nodes(event, image_path=image_path, error=error)])
+        chain = MessageChain([self._build_forward_nodes(event, image_path=image_path, error=error, archive_url=archive_url)])
         try:
             await event.send(chain)
         except Exception as exc:
             logger.warning(f"SimpleDraw failed to send forward message, fallback to normal message: {exc}")
-            await event.send(self._build_fallback_chain(image_path=image_path, error=error))
+            await event.send(self._build_fallback_chain(image_path=image_path, error=error, archive_url=archive_url))
 
     def _build_forward_nodes(
         self,
         event: AstrMessageEvent,
         image_path: str | None,
         error: str | None,
+        archive_url: str,
     ) -> Comp.Nodes:
         nodes = [
             Comp.Node(
@@ -61,6 +63,14 @@ class MessageActions:
                 uin=str(event.get_self_id() or 0),
             ),
         ]
+        if image_path and archive_url:
+            nodes.append(
+                Comp.Node(
+                    [Comp.Plain(f"提示词已收录至{archive_url}")],
+                    name="SimpleDraw",
+                    uin=str(event.get_self_id() or 0),
+                ),
+            )
         return Comp.Nodes(nodes)
 
     def _original_message_content(self, event: AstrMessageEvent) -> list[Any]:
@@ -78,11 +88,14 @@ class MessageActions:
             return [Comp.Plain("绘图结果"), Comp.Image.fromFileSystem(image_path)]
         return [Comp.Plain("画图失败：没有生成图片")]
 
-    def _build_fallback_chain(self, image_path: str | None, error: str | None) -> MessageChain:
+    def _build_fallback_chain(self, image_path: str | None, error: str | None, archive_url: str) -> MessageChain:
         if error:
             return MessageChain([Comp.Plain(f"画图失败：{error}")])
         if image_path:
-            return MessageChain([Comp.Image.fromFileSystem(image_path)])
+            messages: list[Any] = [Comp.Image.fromFileSystem(image_path)]
+            if archive_url:
+                messages.append(Comp.Plain(f"\n提示词已收录至{archive_url}"))
+            return MessageChain(messages)
         return MessageChain([Comp.Plain("画图失败：没有生成图片")])
 
     def _get_message_id(self, event: AstrMessageEvent) -> str:

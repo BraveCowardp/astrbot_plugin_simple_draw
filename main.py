@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Iterable, Optional
+from typing import Any, Iterable, Optional
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
@@ -69,14 +69,13 @@ class SimpleDrawPlugin(Star):
             image_path = await self.draw_client.generate_image(prompt, reference_images)
         except Exception as exc:
             logger.exception("SimpleDraw image generation failed")
-            await self._record_draw(event, prompt, status="failed", error=str(exc), reference_images=locals().get("reference_images", []))
             await self.message_actions.send_draw_forward(event, error=str(exc))
             if False:
                 yield event.plain_result("")
             return
 
         await self._record_draw(event, prompt, status="success", output_path=image_path, reference_images=reference_images)
-        await self.message_actions.send_draw_forward(event, image_path=image_path)
+        await self.message_actions.send_draw_forward(event, image_path=image_path, archive_url=self._prompt_archive_url())
         if False:
             yield event.plain_result("")
 
@@ -100,6 +99,9 @@ class SimpleDrawPlugin(Star):
             return ""
         return parts[1].strip()
 
+    def _prompt_archive_url(self) -> str:
+        return self.config.prompt_archive_url or self.prompt_web.url
+
     async def _record_draw(
         self,
         event: AstrMessageEvent,
@@ -118,6 +120,7 @@ class SimpleDrawPlugin(Star):
                     session_id=event.get_session_id(),
                     sender_id=str(event.get_sender_id()),
                     sender_name=event.get_sender_name(),
+                    sender_avatar=self._extract_sender_avatar(event),
                     prompt=prompt,
                     input_outline=event.get_message_outline(),
                     output_path=output_path,
@@ -128,6 +131,46 @@ class SimpleDrawPlugin(Star):
             )
         except Exception as exc:
             logger.warning(f"SimpleDraw failed to record prompt: {exc}")
+
+    def _extract_sender_avatar(self, event: AstrMessageEvent) -> str:
+        for value in self._iter_avatar_candidates(event):
+            if value:
+                return value
+
+        platform = str(event.get_platform_name() or "").lower()
+        sender_id = str(event.get_sender_id() or "").strip()
+        if sender_id and any(name in platform for name in ("qq", "aiocqhttp", "napcat", "onebot")):
+            return f"https://q1.qlogo.cn/g?b=qq&nk={sender_id}&s=100"
+        return ""
+
+    def _iter_avatar_candidates(self, event: AstrMessageEvent):
+        for attr in ("get_sender_avatar", "get_avatar_url", "get_sender_avatar_url"):
+            method = getattr(event, attr, None)
+            if callable(method):
+                try:
+                    yield str(method() or "").strip()
+                except Exception:
+                    pass
+
+        message_obj = getattr(event, "message_obj", None)
+        for attr in ("sender_avatar", "avatar", "avatar_url", "face_url"):
+            yield str(getattr(message_obj, attr, "") or "").strip()
+
+        raw_message = getattr(message_obj, "raw_message", None)
+        yield from self._iter_avatar_values(raw_message)
+
+    def _iter_avatar_values(self, value: Any):
+        if isinstance(value, dict):
+            for key in ("avatar", "avatar_url", "face_url", "head_img", "headimgurl"):
+                yield str(value.get(key, "") or "").strip()
+            sender = value.get("sender")
+            if isinstance(sender, dict):
+                for key in ("avatar", "avatar_url", "face_url", "head_img", "headimgurl"):
+                    yield str(sender.get(key, "") or "").strip()
+            return
+
+        for attr in ("avatar", "avatar_url", "face_url", "head_img", "headimgurl"):
+            yield str(getattr(value, attr, "") or "").strip()
 
     def _save_reference_previews(self, reference_images: Iterable[tuple[bytes, str]]) -> list[str]:
         paths: list[str] = []
